@@ -1,0 +1,81 @@
+import tkinter as tk
+
+# Define the ingredients available and their quantities
+ingredients = {"flour": 1000, "sugar": 500, "butter": 750, "eggs": 20}
+
+# Create a dictionary of recipes and their ingredients
+recipes = {
+    "Cake": {"flour": 300, "sugar": 150, "butter": 200, "eggs": 4},
+    "Cookies": {"flour": 200, "sugar": 100, "butter": 150, "eggs": 2},
+    "Pancakes": {"flour": 100, "sugar": 50, "butter": 75, "eggs": 1}
+}
+
+# Create a function to check if there are enough ingredients to make a recipe
+def enough_ingredients(recipe, portions):
+    for ingredient, quantity in recipes[recipe].items():
+        if quantity * portions > ingredients[ingredient]:
+            return False
+    return True
+
+# Create a function to display the available recipes
+def display_recipes():
+    # Clear the list box
+    recipe_list.delete(0, tk.END)
+    # Iterate through the recipes and add them to the list box if there are enough ingredients
+    for recipe in recipes:
+        if enough_ingredients(recipe, portion.get()):
+            recipe_list.insert(tk.END, recipe)
+
+# Create a function to make the selected recipe
+def make_recipe():
+    # Reduce the quantity of each ingredient used by the recipe
+    for ingredient, quantity in recipes[recipe_list.get(tk.ACTIVE)].items():
+        ingredients[ingredient] -= quantity * portion.get()
+    # Display a message to confirm the recipe has been made
+    message_label.config(text=f"{recipe_list.get(tk.ACTIVE)} has been made!")
+
+# Create the GUI
+root = tk.Tk()
+root.title("Recipe Maker")
+
+# Create a label for the portion size
+portion_label = tk.Label(root, text="Portion size:")
+portion_label.pack()
+
+# Create a spinbox for the portion size
+portion = tk.IntVar(value=1)
+portion_spinbox = tk.Spinbox(root, from_=1, to=10, textvariable=portion)
+portion_spinbox.pack()
+
+# Create a label for the available ingredients
+ingredients_label = tk.Label(root, text="Available ingredients:")
+ingredients_label.pack()
+
+# Create a list box for the ingredients
+ingredient_list = tk.Listbox(root)
+for ingredient, quantity in ingredients.items():
+    ingredient_list.insert(tk.END, f"{ingredient}: {quantity}")
+ingredient_list.pack()
+
+# Create a label for the recipes
+recipe_label = tk.Label(root, text="Recipes:")
+recipe_label.pack()
+
+# Create a list box for the recipes
+recipe_list = tk.Listbox(root)
+recipe_list.pack()
+
+# Create a button to display the available recipes
+recipe_button = tk.Button(root, text="Display Recipes", command=display_recipes)
+recipe_button.pack()
+
+# Create a button to make the selected recipe
+make_button = tk.Button(root, text="Make Recipe", command=make_recipe)
+make_button.pack()
+
+# Create a label for messages
+message_label = tk.Label(root, text="")
+message_label.pack()
+
+# Start the GUI
+root.mainloop()

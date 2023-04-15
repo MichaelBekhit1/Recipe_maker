@@ -1,0 +1,222 @@
+import tkinter as tk
+
+# Define the ingredients available and their quantities
+ingredients = {"flour": 1000, "sugar": 500, "butter": 750, "eggs": 20}
+
+# Create a dictionary of recipes and their ingredients
+recipes = {
+    "Cake": {"flour": 300, "sugar": 150, "butter": 200, "eggs": 4},
+    "Cookies": {"flour": 200, "sugar": 100, "butter": 150, "eggs": 2},
+    "Pancakes": {"flour": 100, "sugar": 50, "butter": 75, "eggs": 1}
+}
+
+
+# Create a function to check if there are enough ingredients to make a recipe
+def enough_ingredients(recipe, portions):
+    for ingredient, quantity in recipes[recipe].items():
+        if quantity * portions > ingredients[ingredient]:
+            return False
+    return True
+
+# Create a function to display the available recipes
+def display_recipes():
+    # Clear the list box
+    recipe_list.delete(0, tk.END)
+    # Iterate through the recipes and add them to the list box if there are enough ingredients
+    for recipe in recipes:
+        if enough_ingredients(recipe, portion.get()):
+            recipe_list.insert(tk.END, recipe)
+
+# Create a function to make the selected recipe
+def make_recipe():
+    # Reduce the quantity of each ingredient used by the recipe
+    for ingredient, quantity in recipes[recipe_list.get(tk.ACTIVE)].items():
+        ingredients[ingredient] -= quantity * portion.get()
+    # Display a message to confirm the recipe has been made
+    message_label.config(text=f"{recipe_list.get(tk.ACTIVE)} has been made!")
+    # Update the ingredient list
+    update_ingredient_list()
+
+# Create a function to add or edit a recipe
+def add_edit_recipe():
+    # Create a new window for the recipe editor
+    recipe_window = tk.Toplevel(root)
+    recipe_window.title("Recipe Editor")
+    # Create a label for the recipe name
+    recipe_label = tk.Label(recipe_window, text="Recipe Name:")
+    recipe_label.pack()
+    # Create an entry field for the recipe name
+    recipe_name = tk.Entry(recipe_window)
+    recipe_name.pack()
+    # Create a label for the recipe ingredients
+    ingredient_label = tk.Label(recipe_window, text="Recipe Ingredients:")
+    ingredient_label.pack()
+    # Create a list box for the recipe ingredients
+    ingredient_listbox = tk.Listbox(recipe_window)
+    for ingredient, quantity in ingredients.items():
+        ingredient_listbox.insert(tk.END, f"{ingredient}: {quantity}")
+    ingredient_listbox.pack()
+    # Create a button to add ingredients to the recipe
+    add_ingredient_button = tk.Button(recipe_window, text="Add Ingredient", command=lambda: add_ingredient(recipe_name.get(), ingredient_listbox.get(tk.ACTIVE)))
+    add_ingredient_button.pack()
+    # Create a button to remove ingredients from the recipe
+    remove_ingredient_button = tk.Button(recipe_window, text="Remove Ingredient", command=lambda: remove_ingredient(recipe_name.get(), ingredient_listbox.get(tk.ACTIVE)))
+    remove_ingredient_button.pack()
+    # Create a button to save the recipe
+    save_recipe_button = tk.Button(recipe_window, text="Save Recipe", command=lambda: save_recipe(recipe_name.get()))
+    save_recipe_button.pack()
+
+# Create a function to add an ingredient to a recipe
+def add_ingredient(recipe_name, ingredient):
+    # Check if the recipe exists
+    if recipe_name in recipes:
+        # Add the ingredient to the recipe
+        recipes[recipe_name][ingredient.split(":")[0]] = 0
+        # Display a message to confirm the ingredient has been added
+        message_label.config(text=f"{ingredient.split(':')[0]} has been added to {recipe_name}!")
+    else:
+        # Display an error message if the recipe doesn't exist
+        message_label.config(text=f"{recipe_name} does not exist!")
+
+# Create a function to remove an ingredient from a recipe
+def remove_ingredient(recipe_name, ingredient):
+    # Check if the recipe exists
+    if recipe_name in recipes:
+        # Remove the ingredient from the recipe
+        del recipes[recipe_name][ingredient.split(":")[0]]
+        # Display a message to confirm the ingredient has been removed
+        message_label.config(text=f"{ingredient.split(':')[0]} has been removed from {recipe_name}!")
+    else:
+        # Display an error message if the recipe doesn't exist
+        message_label.config(text=f"{recipe_name} does not exist!")
+
+# Create a function to save a recipe
+def save_recipe(recipe_name):
+    # Check if the recipe exists
+    if recipe_name in recipes:
+        # Display a message to confirm the recipe has been updated
+        message_label.config(text=f"{recipe_name} has been updated!")
+    else:
+        # Create a new entry in the recipes dictionary for the new recipe
+        recipes[recipe_name] = {}
+        # Display a message to confirm the recipe has been added
+        message_label.config(text=f"{recipe_name} has been added!")
+    # Add the ingredients to the recipe and their respective quantities
+    for index in range(ingredient_listbox.size()):
+        ingredient = ingredient_listbox.get(index)
+        recipe_ingredient, recipe_quantity = ingredient.split(":")
+        recipe_quantity = int(recipe_quantity)
+        recipes[recipe_name][recipe_ingredient] = recipe_quantity
+    # Destroy the recipe window and update the recipe list
+    recipe_window.destroy()
+    update_recipe_list()
+
+# Create a function to update the recipe list
+def update_recipe_list():
+    # Clear the recipe list
+    recipe_list.delete(0, tk.END)
+    # Add the updated recipe list to the recipe list box
+    for recipe in recipes:
+        recipe_list.insert(tk.END, recipe)
+
+# Create a function to add or edit an ingredient
+def add_edit_ingredient():
+    # Create a new window for the ingredient editor
+    ingredient_window = tk.Toplevel(root)
+    ingredient_window.title("Ingredient Editor")
+    # Create a label for the ingredient name
+    ingredient_label = tk.Label(ingredient_window, text="Ingredient Name:")
+    ingredient_label.pack()
+    # Create an entry field for the ingredient name
+    ingredient_name = tk.Entry(ingredient_window)
+    ingredient_name.pack()
+    # Create a label for the ingredient quantity
+    quantity_label = tk.Label(ingredient_window, text="Quantity:")
+    quantity_label.pack()
+    # Create an entry field for the ingredient quantity
+    ingredient_quantity = tk.Entry(ingredient_window)
+    ingredient_quantity.pack()
+
+    # Create a function to add the ingredient to the ingredients dictionary
+    def add_ingredient_to_dict(name, quantity):
+        # Check if the ingredient exists
+        if name in ingredients:
+            # Update the quantity of the ingredient
+            ingredients[name] += quantity
+            # Display a message to confirm the ingredient has been updated
+            message_label.config(text=f"{name} quantity updated to {ingredients[name]}!")
+        else:
+            # Add the new ingredient to the dictionary
+            ingredients[name] = quantity
+            # Display a message to confirm the ingredient has been added
+            message_label.config(text=f"{name} has been added!")
+        # Destroy the ingredient window and update the ingredient list
+        ingredient_window.destroy()
+        update_ingredient_list()
+
+    # Create a button to add the ingredient
+    add_ingredient_button = tk.Button(ingredient_window, text="Add Ingredient", command=lambda: add_ingredient_to_dict(ingredient_name.get(), int(ingredient_quantity.get())))
+    add_ingredient_button.pack()
+
+    # If an ingredient was selected from the ingredient listbox, prepopulate the fields with the ingredient data
+    selected_ingredient = ingredient_listbox.get(tk.ACTIVE)
+    if selected_ingredient:
+        selected_ingredient_name, selected_ingredient_quantity = selected_ingredient.split(":")
+        ingredient_name.insert(0, selected_ingredient_name)
+        ingredient_quantity.insert(0, selected_ingredient_quantity)
+        # Create a function to update the ingredient in the ingredients dictionary
+        def update_ingredient_in_dict(name, quantity):
+            # Check if the ingredient exists
+            if name in ingredients:
+                # Update the quantity of the ingredient
+                ingredients[name] += quantity
+                # Display a message to confirm the ingredient has been updated
+                message_label.config(text=f"{name} quantity updated to {ingredients[name]}!")
+            else:
+                # Add the new ingredient to the dictionary
+                ingredients[name] = quantity
+                # Display a message to confirm the ingredient has been added
+                message_label.config(text=f"{name} has been added!")
+            # Destroy the ingredient window and update the ingredient list
+            ingredient_window.destroy()
+            update_ingredient_list()
+
+        # Create a button to edit the ingredient
+        edit_ingredient_button = tk.Button(ingredient_window, text="Edit Ingredient", command=lambda: update_ingredient_in_dict(selected_ingredient_name, int(ingredient_quantity.get())))
+        edit_ingredient_button.pack()
+
+import tkinter as tk
+
+# Define the ingredients available and their quantities
+ingredients = {"flour": 1000, "sugar": 500, "butter": 750, "eggs": 20}
+
+# Create a dictionary of recipes and their ingredients
+recipes = {
+    "Cake": {"flour": 300, "sugar": 150, "butter": 200, "eggs": 4},
+    "Cookies": {"flour": 200, "sugar": 100, "butter": 150, "eggs": 2},
+    "Pancakes": {"flour": 100, "sugar": 50, "butter": 75, "eggs": 1}
+}
+
+# Create a function to check if there are enough ingredients to make a recipe
+def enough_ingredients(recipe, portions):
+    for ingredient, quantity in recipes[recipe].items():
+        if quantity * portions > ingredients[ingredient]:
+            return False
+    return True
+
+# Create a function to display the available recipes
+def display_recipes():
+    # Clear the list box
+    recipe_list.delete(0, tk.END)
+    # Iterate through the recipes and add them to the list box if there are enough ingredients
+    for recipe in recipes:
+        if enough_ingredients(recipe, portion.get()):
+            recipe_list.insert(tk.END, recipe)
+
+# Create a function to make the selected recipe
+def make_recipe():
+    # Reduce the quantity of each ingredient used by the recipe
+    for ingredient, quantity in recipes[recipe_list.get(tk.ACTIVE)].items():
+        ingredients[ingredient] -= quantity * portion.get()
+    # Display a message to confirm the recipe has been made
+    message_label.config(text=f"{recipe_list.get(tk.ACTIVE)} has been made!")
